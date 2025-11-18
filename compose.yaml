@@ -1,0 +1,73 @@
+services:
+  myapp:
+    build: .
+    container_name: demo
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - mongo
+    environment:
+      SPRING_DATA_REDIS_HOST: redis       # 指向 redis 服务名称
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/testdb  # 指向 mongo 服务名称
+      SPRING_DATA_MONGODB_USERNAME: admin
+      SPRING_DATA_MONGODB_PASSWORD: secret123
+    networks:
+      - app-net
+
+# 创建一个postgres容器
+  db:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresqldata:/data/postgresql
+# 创建一个redis容器
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data/redis
+#创建一个elasticsearch容器,外部能访问的
+  elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        container_name: elasticsearch
+        environment:
+        - discovery.type=single-node
+        - network.host=0.0.0.0
+        - ES_JAVA_OPTS=-Xms512m -Xmx512m
+        ports:
+        - "9200:9200"
+        - "9300:9300"
+        volumes:
+        - esdata:/data/elasticsearch
+#创建一个mongodb容器
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+      MONGO_INITDB_DATABASE: mydatabase
+
+volumes:
+  esdata:
+  redisdata:
+  mongodata:
+  postgresqldata:
+
+networks:
+  app-net:
+    driver: bridge

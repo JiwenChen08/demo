@@ -25,6 +25,7 @@
         <module>mockmvc-demo</module>
         <module>mongo-demo</module>
         <module>redis-demo</module>
+        <module>wallee-sdk-demo</module>
     </modules>
     <scm>
 		<connection/>
